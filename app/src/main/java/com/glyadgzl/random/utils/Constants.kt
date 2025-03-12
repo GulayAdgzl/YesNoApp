@@ -1,4 +1,5 @@
 package com.glyadgzl.random.utils
 
-class Constants {
+object Constants {
+    val BASEURL="https://yesno.wtf/"
 }

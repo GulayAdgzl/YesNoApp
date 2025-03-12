@@ -1,5 +1,7 @@
 package com.glyadgzl.random.di
+import androidx.compose.ui.unit.Constraints
 import com.glyadgzl.random.api.YesNoAPI
+import com.glyadgzl.random.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,7 +35,7 @@ class RandomYesNoModel {
     @Provides
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://yesno.wtf/") // BASEURL yerine doğrudan kullanılacak URL yazıldı
+            .baseUrl(Constants.BASEURL) // BASEURL yerine doğrudan kullanılacak URL yazıldı
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
