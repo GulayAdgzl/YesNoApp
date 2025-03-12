@@ -1,4 +1,6 @@
 package com.glyadgzl.random
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-class YesNo {
-}
+@HiltAndroidApp
+class YesNo :Application()
