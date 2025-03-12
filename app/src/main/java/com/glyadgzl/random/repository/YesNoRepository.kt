@@ -23,7 +23,7 @@ class YesNoRepository @Inject constructor(private val randomYesNoAPI: YesNoAPI) 
     private val _getRandomLiveData = MutableLiveData<YesNoResponse?>()
     val getRandomLiveData: LiveData<YesNoResponse?> get() = _getRandomLiveData
 
-    suspend fun getRandomUserLiveData() {
+    suspend fun getRandomLiveData() {
         val data = randomYesNoAPI.getRandomYesNo()
         if (data.isSuccessful && data.body() != null) {
             _getRandomLiveData.postValue(data.body())
