@@ -1,5 +1,6 @@
 package com.glyadgzl.random
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -44,5 +45,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun getVideoUri(): Uri {
+        val rawId = resources.getIdentifier("clouds", "raw", packageName)
+        val videoUri = "android.resource://$packageName/$rawId"
+        return Uri.parse(videoUri)
     }
 }
