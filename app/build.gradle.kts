@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.media3.exoplayer)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -87,4 +88,7 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
 
     implementation ("androidx.compose.runtime:runtime-livedata:1.0.0")
+
+    implementation ("com.google.android.exoplayer:exoplayer-core:2.17.1")
+    implementation ("com.google.android.exoplayer:exoplayer-ui:2.17.1")
 }
