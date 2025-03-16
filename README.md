@@ -4,7 +4,11 @@
 YesNo is a simple Android application that fetches random Yes/No responses from an external API. The app displays a video background while showing the response along with a corresponding image.
 
 
-https://github.com/user-attachments/assets/b0c6d38a-f722-4b7f-a7bb-4c383460e333
+
+
+https://github.com/user-attachments/assets/18f4dd3a-e1e1-46ae-a2b3-d970fd08279d
+
+
 
 
 
