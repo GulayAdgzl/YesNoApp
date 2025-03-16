@@ -18,7 +18,7 @@ class YesNoViewModel @Inject constructor(private val yesNoRepository: YesNoRepos
 
     suspend fun getRandomData(){
         viewModelScope.launch {
-            yesNoRepository.getRandomLiveData()
+            yesNoRepository.getYesNoResponse()
         }
     }
 
