@@ -56,55 +56,7 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.rememberImagePainter
 import kotlinx.coroutines.launch
 
-/*
-@Composable
-fun YesNoScreen(videoUri: Uri,randomData:State<YesNoResponse?>) {
-    val context = LocalContext.current
-    val exoPlayer = remember { context.buildExoPlayer(videoUri) }
 
-    DisposableEffect(
-        AndroidView(
-            factory = { it.buildPlayerView(exoPlayer) },
-            modifier = Modifier.fillMaxSize()
-        )
-    ) {
-        onDispose {
-            exoPlayer.release()
-        }
-    }
-
-    if(randomData.value?.results!=null&& randomUserData.value!!.results.size>0){
-        val length= randomUserData.value?.results?.size
-        println("LENGTH:>>>>>>> ${length}")
-        LazyColumn {
-            items(randomUserData.value!!.results) { result ->
-                UserListItem(result = result)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }else{
-        println("DATA NULL:>>>>>>>")
-    }
-}
-
-}
-
-
-private fun Context.buildExoPlayer(uri: Uri) =
-    ExoPlayer.Builder(this).build().apply {
-        setMediaItem(MediaItem.fromUri(uri))
-        repeatMode = Player.REPEAT_MODE_ALL
-        playWhenReady = true
-        prepare()
-    }
-
-private fun Context.buildPlayerView(exoPlayer: ExoPlayer) =
-    StyledPlayerView(this).apply {
-        player = exoPlayer
-        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        useController = false
-        resizeMode = RESIZE_MODE_ZOOM
-    }*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YesNoScreen(videoUri: Uri,viewModel: YesNoViewModel = hiltViewModel()) {
@@ -115,6 +67,7 @@ fun YesNoScreen(videoUri: Uri,viewModel: YesNoViewModel = hiltViewModel()) {
     var showDialog by remember { mutableStateOf(false) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var userInput by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Video arkaplanı
@@ -137,73 +90,132 @@ fun YesNoScreen(videoUri: Uri,viewModel: YesNoViewModel = hiltViewModel()) {
         ) {
             Spacer(modifier = Modifier.height(80.dp))
             Text(
-                text = "Bugün ne soracaksın?",
+                text = "What Can I Answer For You Today",
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White
+                color = Color.Gray
             )
             Spacer(modifier = Modifier.weight(1f))
+
+            // To remove the delay when clicking the button, remove the delay() call:
             IconButton(
-                onClick = { showDialog = true }, // Butona tıklayınca dialog açılır
+                onClick = {
+                    scope.launch {
+                        // Remove this line to make the dialog appear immediately:
+                        // delay(5000)
+                        viewModel.getRandomData() // Fetch new data from API
+                        showDialog = true // Show dialog immediately
+                    }
+                },
                 modifier = Modifier.size(80.dp)
             ) {
-                Icon(Icons.Default.Search, contentDescription = "Ask AI", tint = Color.White)
+                Icon(painter = painterResource(id = R.drawable.voice), contentDescription = "Voice Icon")
             }
+            // Add more space at the bottom to push the button up
+            Spacer(modifier = Modifier.weight(0.3f))
             Spacer(modifier = Modifier.height(16.dp))
-            TextButton(onClick = { showBottomSheet = true }) { // "Use Keyboard" tıklanınca açılır
-                Text("Use Keyboard", color = Color.White)
-            }
+
         }
     }
 
     // AI yanıtını gösteren Dialog
+// AI yanıtını gösteren Dialog
+    // AI yanıtını gösteren Dialog
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("AI Response") },
+            title = { },
             text = {
-                Column {
-                    randomData?.let {
-                        Text(it.answer) // Yanıt metni
-                        Image(painter = rememberImagePainter(it.image), contentDescription = null)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Transparent)
+                ) {
+                    // Close (X) icon in the top-left corner
+                    IconButton(
+                        onClick = { showDialog = false },
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(4.dp)
+                            .size(32.dp)
+                            .background(Color.Black.copy(alpha = 0.3f), shape = CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = Color.White
+                        )
+                    }
 
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                            .padding(8.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        randomData?.let {
+                            // Container for image and overlaid text
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                // Image first (in background)
+                                val imageLoader = ImageLoader.Builder(LocalContext.current)
+                                    .components {
+                                        if (Build.VERSION.SDK_INT >= 28) {
+                                            add(ImageDecoderDecoder.Factory())
+                                        } else {
+                                            add(GifDecoder.Factory())
+                                        }
+                                    }
+                                    .build()
+
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(it.image)
+                                        .build(),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(320.dp) // Increased height for larger image
+                                        .scale(1.1f) // Slightly scale up the image
+                                        .clip(RoundedCornerShape(8.dp)),
+                                    contentScale = ContentScale.Crop,
+                                    imageLoader = imageLoader
+                                )
+
+                                // Text at the bottom center of the image
+                                Text(
+                                    text = it.answer,
+                                    style = TextStyle(
+                                        fontSize = 30.sp,
+                                        textAlign = TextAlign.Center,
+                                        color = Color.White,
+                                        shadow = Shadow(
+                                            color = Color.Black,
+                                            offset = Offset(1f, 1f),
+                                            blurRadius = 3f
+                                        )
+                                    ),
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .padding(16.dp)
+                                        .background(
+                                            Color.Black.copy(alpha = 0.5f),
+                                            shape = RoundedCornerShape(8.dp)
+                                        )
+                                        .padding(8.dp)
+                                )
+                            }
+                        }
                     }
                 }
             },
-            confirmButton = {
-                Button(onClick = { showDialog = false }) { Text("OK") }
-
-            }
+            confirmButton = { /* No confirm button */ },
+            containerColor = Color.Transparent
         )
     }
 
-    // Klavyeyle giriş için BottomSheet
-    if (showBottomSheet) {
-        ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(16. dp),
-
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                OutlinedTextField(
-                    value = userInput,
-                    onValueChange = { userInput = it },
-                    label = { Text("Ask something") }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = {
-                    showDialog = true
-                    showBottomSheet = false
-                    viewModel.viewModelScope.launch {
-                        viewModel.getRandomData()
-                    }
-                    //getRandomData() // API çağrısı yapılır
-                }) {
-                    Text("Send")
-                }
-            }
-        }
-    }
 
 
 
