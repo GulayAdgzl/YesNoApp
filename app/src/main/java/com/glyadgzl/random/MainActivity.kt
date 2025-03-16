@@ -26,13 +26,15 @@ import com.glyadgzl.random.model.YesNoResponse
 import com.glyadgzl.random.ui.theme.RandomTheme
 import com.glyadgzl.random.viewmodels.YesNoViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 
 import com.glyadgzl.random.screens.YesNoScreen
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.StyledPlayerView
-
+import kotlinx.coroutines.launch
+/*
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +45,16 @@ class MainActivity : ComponentActivity() {
                   modifier=Modifier.fillMaxSize(),
                   color= MaterialTheme.colorScheme.background
               ) {
-                  YesNoScreen(getVideoUri())
+                  Box(modifier = Modifier.padding(it).background(Color.White)){
+                      // Provide ViewModel
+                      val viewModel: YesNoViewModel = hiltViewModel()
+                      callAPI(viewModel)
+                      val randomData: State<YesNoResponse?> = viewModel.randomData.collectAsState()
+
+                      YesNoScreen(getVideoUri(),randomData)
+
+                  }
+
               }
             }
         }
@@ -53,5 +64,47 @@ class MainActivity : ComponentActivity() {
         val rawId = resources.getIdentifier("clouds", "raw", packageName)
         val videoUri = "android.resource://$packageName/$rawId"
         return Uri.parse(videoUri)
+    }
+
+
+    private fun callAPI(viewModel: YesNoViewModel) {
+        viewModel.viewModelScope.launch {
+            viewModel.getRandomData()
+        }
+    }
+}
+*/
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge() // Tam ekran görünüm
+        setContent {
+            RandomTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    YesNoScreen(getVideoUri()) // Ana ekran çağrılıyor
+                }
+            }
+        }
+    }
+
+    private fun getVideoUri(): Uri {
+        val rawId =
+            resources.getIdentifier("clouds", "raw", packageName)
+        val videoUri = "android.resource://$packageName/$rawId"
+        return Uri.parse(videoUri)
+    }
+
+
+    private fun callAPI(viewModel: YesNoViewModel) {
+        viewModel.viewModelScope.launch {
+            viewModel.getRandomData()
+        }
     }
 }

@@ -4,8 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.glyadgzl.random.model.YesNoResponse
 import com.glyadgzl.random.repository.YesNoRepository
-
 import dagger.hilt.android.lifecycle.HiltViewModel
+
+
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
